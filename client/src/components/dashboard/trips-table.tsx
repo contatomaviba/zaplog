@@ -19,7 +19,7 @@ export default function TripsTable({ trips, user, onUpgrade }: TripsTableProps) 
     const matchesSearch = trip.driverName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          trip.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          trip.destination.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = !statusFilter || trip.status === statusFilter;
+    const matchesStatus = !statusFilter || statusFilter === "all" || trip.status === statusFilter;
     return matchesSearch && matchesStatus && trip.isActive;
   });
 
@@ -81,7 +81,7 @@ export default function TripsTable({ trips, user, onUpgrade }: TripsTableProps) 
                 <SelectValue placeholder="Todos os Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os Status</SelectItem>
+                <SelectItem value="all">Todos os Status</SelectItem>
                 <SelectItem value="active">Ativa</SelectItem>
                 <SelectItem value="pending">Aguardando</SelectItem>
                 <SelectItem value="completed">Concluída</SelectItem>

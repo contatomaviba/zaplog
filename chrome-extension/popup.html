@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zaplog</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9.78 12l4.44-4.44L12.81 6.15 6.96 12l5.85 5.85 1.41-1.41L9.78 12z"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Zaplog</h1>
+          <p>Gestão Logística</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content" id="main-content">
+      <!-- Not logged in state -->
+      <div id="not-logged-in" class="state-container">
+        <div class="icon-container">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+        </div>
+        <h3>Entre em sua conta</h3>
+        <p>Faça login para gerenciar suas viagens logísticas</p>
+        <button id="open-dashboard-btn" class="primary-button">
+          Abrir Dashboard
+        </button>
+      </div>
+
+      <!-- Trip form state -->
+      <div id="trip-form" class="state-container hidden">
+        <h3>Iniciar Acompanhamento</h3>
+        
+        <!-- Auto-filled contact info -->
+        <div class="contact-info">
+          <div class="contact-info-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span>Dados extraídos do WhatsApp</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nome</label>
+              <input type="text" id="driver-name" readonly>
+            </div>
+            <div class="form-group">
+              <label>Telefone</label>
+              <input type="text" id="driver-phone" readonly>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trip details form -->
+        <form id="trip-details-form">
+          <div class="form-group">
+            <label>Placa do Veículo *</label>
+            <input type="text" id="plate" placeholder="ABC-1234" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Origem *</label>
+              <input type="text" id="origin" placeholder="São Paulo, SP" required>
+            </div>
+            <div class="form-group">
+              <label>Destino *</label>
+              <input type="text" id="destination" placeholder="Rio de Janeiro, RJ" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Observações</label>
+            <textarea id="observations" placeholder="Informações adicionais..."></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" id="cancel-btn" class="secondary-button">
+              Cancelar
+            </button>
+            <button type="submit" class="primary-button">
+              Criar Viagem
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Success state -->
+      <div id="success-state" class="state-container hidden">
+        <div class="icon-container success">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+        </div>
+        <h3>Viagem criada com sucesso!</h3>
+        <p>O acompanhamento foi iniciado e você pode gerenciá-lo no dashboard.</p>
+        <button id="open-dashboard-success-btn" class="primary-button">
+          Ver no Dashboard
+        </button>
+      </div>
+
+      <!-- Error state -->
+      <div id="error-state" class="state-container hidden">
+        <div class="icon-container error">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          </svg>
+        </div>
+        <h3>Erro ao criar viagem</h3>
+        <p id="error-message">Ocorreu um erro inesperado. Tente novamente.</p>
+        <button id="retry-btn" class="primary-button">
+          Tentar Novamente
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <button id="dashboard-footer-btn" class="footer-button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+        </svg>
+        Dashboard
+      </button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
