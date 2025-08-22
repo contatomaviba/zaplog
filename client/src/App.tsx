@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { isAuthenticated } from "@/lib/auth";
 import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
+import TripsPage from "@/pages/trips";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/" component={authenticated ? Dashboard : Login} />
       <Route path="/login" component={Login} />
       <Route path="/dashboard" component={authenticated ? Dashboard : Login} />
+      <Route path="/trips" component={authenticated ? TripsPage : Login} />
       <Route component={NotFound} />
     </Switch>
   );

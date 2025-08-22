@@ -61,6 +61,7 @@ export default function Dashboard() {
       return response.json();
     },
     enabled: !!userData,
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
   });
 
   // Get statistics
@@ -106,9 +107,13 @@ export default function Dashboard() {
   }
 
   const user: User = userData?.user;
-  const trips: Trip[] = tripsData?.trips || [];
+  const allTrips: Trip[] = tripsData?.trips || [];
+  // Show only last 3 trips in dashboard
+  const recentTrips = allTrips
+    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+    .slice(0, 3);
   const stats: TripStats = statsData?.stats || { total: 0, active: 0, completed: 0, drivers: 0 };
-  const activeTripsCount = trips.filter(trip => trip.isActive && trip.status !== 'completed').length;
+  const activeTripsCount = allTrips.filter(trip => trip.isActive && trip.status !== 'completed').length;
 
   return (
     <div className="min-h-screen bg-gray-50" data-testid="dashboard">
@@ -120,9 +125,10 @@ export default function Dashboard() {
         <main className="p-8">
           <StatsCards stats={stats} />
           <TripsTable 
-            trips={trips} 
+            trips={recentTrips} 
             user={user} 
-            onUpgrade={() => setIsUpgradeModalOpen(true)} 
+            onUpgrade={() => setIsUpgradeModalOpen(true)}
+            isDashboard={true}
           />
           <ActivityFeed />
         </main>

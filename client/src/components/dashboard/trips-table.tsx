@@ -1,26 +1,69 @@
 import { useState } from "react";
 import { Eye, MessageCircle, XCircle, ArrowRight, Search, AlertTriangle } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { Trip, User } from "@/types";
 
 interface TripsTableProps {
   trips: Trip[];
   user: User;
   onUpgrade: () => void;
+  isDashboard?: boolean;
 }
 
-export default function TripsTable({ trips, user, onUpgrade }: TripsTableProps) {
+export default function TripsTable({ trips, user, onUpgrade, isDashboard = false }: TripsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Handle WhatsApp integration
+  const handleWhatsAppContact = (trip: Trip) => {
+    const phone = trip.phone.replace(/\D/g, '');
+    const whatsappUrl = `https://web.whatsapp.com/send?phone=55${phone}&text=Olá%20${encodeURIComponent(trip.driverName)},%20como%20está%20sua%20viagem?`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  // Cancel trip mutation
+  const cancelTripMutation = useMutation({
+    mutationFn: async (tripId: string) => {
+      const response = await apiRequest("PATCH", `/api/trips/${tripId}`, {
+        status: "cancelled",
+        isActive: false
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Viagem cancelada com sucesso!" });
+      queryClient.invalidateQueries({ queryKey: ["/api/trips"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao cancelar viagem",
+        description: error.message || "Erro interno do servidor",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCancelTrip = (trip: Trip) => {
+    if (confirm(`Tem certeza que deseja cancelar a viagem de ${trip.driverName}?`)) {
+      cancelTripMutation.mutate(trip.id);
+    }
+  };
 
   const filteredTrips = trips.filter(trip => {
     const matchesSearch = trip.driverName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          trip.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          trip.destination.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || statusFilter === "all" || trip.status === statusFilter;
-    return matchesSearch && matchesStatus && trip.isActive;
+    // In dashboard mode, show all recent trips; in trips page, show only active
+    return matchesSearch && matchesStatus && (isDashboard || trip.isActive);
   });
 
   const getStatusBadge = (status: string) => {
@@ -63,7 +106,9 @@ export default function TripsTable({ trips, user, onUpgrade }: TripsTableProps) 
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900" data-testid="table-title">Viagens Ativas</h3>
+          <h3 className="text-lg font-semibold text-gray-900" data-testid="table-title">
+            {isDashboard ? "Últimas Viagens" : "Viagens Ativas"}
+          </h3>
           <div className="flex items-center space-x-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -172,22 +217,30 @@ export default function TripsTable({ trips, user, onUpgrade }: TripsTableProps) 
                     <div className="flex items-center space-x-2">
                       <button 
                         className="text-primary hover:text-primary/80 p-1 rounded"
+                        title="Ver detalhes"
                         data-testid={`button-view-${trip.id}`}
                       >
                         <Eye className="h-4 w-4" />
                       </button>
                       <button 
                         className="text-green-600 hover:text-green-900 p-1 rounded"
+                        title="Contatar via WhatsApp"
+                        onClick={() => handleWhatsAppContact(trip)}
                         data-testid={`button-whatsapp-${trip.id}`}
                       >
                         <MessageCircle className="h-4 w-4" />
                       </button>
-                      <button 
-                        className="text-red-600 hover:text-red-900 p-1 rounded"
-                        data-testid={`button-cancel-${trip.id}`}
-                      >
-                        <XCircle className="h-4 w-4" />
-                      </button>
+                      {trip.status !== 'completed' && trip.status !== 'cancelled' && (
+                        <button 
+                          className="text-red-600 hover:text-red-900 p-1 rounded disabled:opacity-50"
+                          title="Cancelar viagem"
+                          onClick={() => handleCancelTrip(trip)}
+                          disabled={cancelTripMutation.isPending}
+                          data-testid={`button-cancel-${trip.id}`}
+                        >
+                          <XCircle className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
