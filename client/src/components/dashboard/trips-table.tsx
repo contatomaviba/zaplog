@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import TripDetailsModal from "@/components/modals/trip-details-modal";
 import type { Trip, User } from "@/types";
 
 interface TripsTableProps {
@@ -18,6 +19,8 @@ interface TripsTableProps {
 export default function TripsTable({ trips, user, onUpgrade, isDashboard = false }: TripsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -55,6 +58,11 @@ export default function TripsTable({ trips, user, onUpgrade, isDashboard = false
     if (confirm(`Tem certeza que deseja cancelar a viagem de ${trip.driverName}?`)) {
       cancelTripMutation.mutate(trip.id);
     }
+  };
+
+  const handleViewDetails = (trip: Trip) => {
+    setSelectedTrip(trip);
+    setIsDetailsModalOpen(true);
   };
 
   const filteredTrips = trips.filter(trip => {
@@ -218,6 +226,7 @@ export default function TripsTable({ trips, user, onUpgrade, isDashboard = false
                       <button 
                         className="text-primary hover:text-primary/80 p-1 rounded"
                         title="Ver detalhes"
+                        onClick={() => handleViewDetails(trip)}
                         data-testid={`button-view-${trip.id}`}
                       >
                         <Eye className="h-4 w-4" />
@@ -249,6 +258,12 @@ export default function TripsTable({ trips, user, onUpgrade, isDashboard = false
           </tbody>
         </table>
       </div>
+
+      <TripDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        trip={selectedTrip}
+      />
 
       {/* Free Plan Limit Warning */}
       {user.plan === 'free' && (

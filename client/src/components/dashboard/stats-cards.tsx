@@ -29,7 +29,7 @@ export default function StatsCards({ stats }: StatsCardsProps) {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200" data-testid="card-active-trips">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-600">Viagens Ativas</p>
+            <p className="text-sm font-medium text-gray-600">Em andamento</p>
             <p className="text-3xl font-bold text-gray-900" data-testid="stat-active">
               {stats.active}
             </p>
@@ -41,6 +41,24 @@ export default function StatsCards({ stats }: StatsCardsProps) {
         <div className="mt-4 flex items-center">
           <span className="text-amber-600 text-sm font-medium">Limite: 3</span>
           <span className="text-gray-500 text-sm ml-1">(Plano Free)</span>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200" data-testid="card-pending-trips">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-gray-600">Aguardando Início</p>
+            <p className="text-3xl font-bold text-gray-900" data-testid="stat-pending">
+              {stats.total - stats.active - stats.completed}
+            </p>
+          </div>
+          <div className="h-12 w-12 bg-amber-50 rounded-xl flex items-center justify-center">
+            <Route className="h-6 w-6 text-amber-600" />
+          </div>
+        </div>
+        <div className="mt-4 flex items-center">
+          <span className="text-amber-600 text-sm font-medium">Pendentes</span>
+          <span className="text-gray-500 text-sm ml-1">de início</span>
         </div>
       </div>
 
@@ -64,23 +82,6 @@ export default function StatsCards({ stats }: StatsCardsProps) {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200" data-testid="card-drivers">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-600">Motoristas</p>
-            <p className="text-3xl font-bold text-gray-900" data-testid="stat-drivers">
-              {stats.drivers}
-            </p>
-          </div>
-          <div className="h-12 w-12 bg-purple-50 rounded-xl flex items-center justify-center">
-            <Users className="h-6 w-6 text-purple-600" />
-          </div>
-        </div>
-        <div className="mt-4 flex items-center">
-          <span className="text-blue-600 text-sm font-medium">{stats.active} ativos</span>
-          <span className="text-gray-500 text-sm ml-1">hoje</span>
-        </div>
-      </div>
     </div>
   );
 }

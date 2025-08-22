@@ -1,5 +1,5 @@
 import { authApi } from "@/lib/auth";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { 
   Truck, 
@@ -17,7 +17,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ user, activeTripsCount }: SidebarProps) {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
 
   const handleLogout = () => {
     authApi.logout();
@@ -57,22 +57,22 @@ export default function Sidebar({ user, activeTripsCount }: SidebarProps) {
 
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-2">
-          <a
-            href="#"
-            className="bg-primary/10 text-primary group flex items-center px-3 py-2 text-sm font-medium rounded-lg"
+          <Link
+            href="/dashboard"
+            className={`${location === '/dashboard' || location === '/' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'} group flex items-center px-3 py-2 text-sm font-medium rounded-lg`}
             data-testid="nav-dashboard"
           >
             <LayoutDashboard className="mr-3 h-5 w-5" />
             Dashboard
-          </a>
-          <a
-            href="#"
-            className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-3 py-2 text-sm font-medium rounded-lg"
+          </Link>
+          <Link
+            href="/trips"
+            className={`${location === '/trips' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'} group flex items-center px-3 py-2 text-sm font-medium rounded-lg`}
             data-testid="nav-trips"
           >
             <Route className="mr-3 h-5 w-5" />
             Viagens
-          </a>
+          </Link>
           <a
             href="#"
             className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-3 py-2 text-sm font-medium rounded-lg"

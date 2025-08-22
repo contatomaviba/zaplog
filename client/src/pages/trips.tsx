@@ -7,6 +7,7 @@ import Sidebar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
 import TripModal from "@/components/modals/trip-modal";
 import UpgradeModal from "@/components/modals/upgrade-modal";
+import TripDetailsModal from "@/components/modals/trip-details-modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,6 +20,8 @@ export default function TripsPage() {
   const [, setLocation] = useLocation();
   const [isTripModalOpen, setIsTripModalOpen] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   
   // Pagination and filtering
   const [currentPage, setCurrentPage] = useState(1);
@@ -180,6 +183,17 @@ export default function TripsPage() {
 
   const getDriverInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
+  const handleViewDetails = (trip: Trip) => {
+    setSelectedTrip(trip);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleWhatsAppContact = (trip: Trip) => {
+    const phone = trip.phone.replace(/\D/g, '');
+    const whatsappUrl = `https://web.whatsapp.com/send?phone=55${phone}&text=Olá%20${encodeURIComponent(trip.driverName)},%20como%20está%20sua%20viagem?`;
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -370,6 +384,8 @@ export default function TripsPage() {
                               variant="ghost"
                               size="sm"
                               className="text-primary hover:text-primary/80"
+                              title="Ver detalhes"
+                              onClick={() => handleViewDetails(trip)}
                               data-testid={`button-view-${trip.id}`}
                             >
                               <Eye className="h-4 w-4" />
@@ -378,6 +394,8 @@ export default function TripsPage() {
                               variant="ghost"
                               size="sm"
                               className="text-green-600 hover:text-green-800"
+                              title="Contatar via WhatsApp"
+                              onClick={() => handleWhatsAppContact(trip)}
                               data-testid={`button-whatsapp-${trip.id}`}
                             >
                               <MessageCircle className="h-4 w-4" />
@@ -463,6 +481,12 @@ export default function TripsPage() {
       <UpgradeModal
         isOpen={isUpgradeModalOpen}
         onClose={() => setIsUpgradeModalOpen(false)}
+      />
+
+      <TripDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        trip={selectedTrip}
       />
     </div>
   );
