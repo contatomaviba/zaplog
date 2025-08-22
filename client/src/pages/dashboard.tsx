@@ -118,10 +118,10 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50" data-testid="dashboard">
       <Sidebar user={user} activeTripsCount={activeTripsCount} />
-      
+
       <div className="ml-64 flex-1">
         <Header onCreateTrip={() => setIsTripModalOpen(true)} />
-        
+
         <main className="p-8">
           <StatsCards stats={stats} />
           <TripsTable 

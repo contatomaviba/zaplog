@@ -1,7 +1,11 @@
 
-const fs = require('fs');
-const path = require('path');
-const archiver = require('archiver');
+import fs from 'fs';
+import path from 'path';
+import archiver from 'archiver';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Criar o arquivo ZIP
 const output = fs.createWriteStream('zaplog-project.zip');
@@ -37,24 +41,32 @@ function shouldExclude(filePath) {
 }
 
 function addDirectory(dirPath, zipPath = '') {
-  const files = fs.readdirSync(dirPath);
-  
-  files.forEach(file => {
-    const fullPath = path.join(dirPath, file);
-    const zipFilePath = zipPath ? path.join(zipPath, file) : file;
+  try {
+    const files = fs.readdirSync(dirPath);
     
-    if (shouldExclude(fullPath)) {
-      return;
-    }
-    
-    const stat = fs.statSync(fullPath);
-    
-    if (stat.isDirectory()) {
-      addDirectory(fullPath, zipFilePath);
-    } else {
-      archive.file(fullPath, { name: zipFilePath });
-    }
-  });
+    files.forEach(file => {
+      const fullPath = path.join(dirPath, file);
+      const zipFilePath = zipPath ? path.join(zipPath, file) : file;
+      
+      if (shouldExclude(fullPath)) {
+        return;
+      }
+      
+      try {
+        const stat = fs.statSync(fullPath);
+        
+        if (stat.isDirectory()) {
+          addDirectory(fullPath, zipFilePath);
+        } else {
+          archive.file(fullPath, { name: zipFilePath });
+        }
+      } catch (error) {
+        console.log(`⚠️  Pulando arquivo ${fullPath}: ${error.message}`);
+      }
+    });
+  } catch (error) {
+    console.log(`⚠️  Erro ao ler diretório ${dirPath}: ${error.message}`);
+  }
 }
 
 console.log('📦 Criando arquivo ZIP do projeto Zaplog...');
@@ -161,7 +173,7 @@ npm run db:push
 npm run dev
 \`\`\`
 
-A aplicação estará disponível em: **http://localhost:3000**
+A aplicação estará disponível em: **http://localhost:5173** (frontend) e **http://localhost:5000** (API)
 
 ## 🎯 Como Instalar a Extensão Chrome
 
@@ -224,18 +236,45 @@ zaplog/
 ### Estatísticas
 - \`GET /api/stats\` - Estatísticas do dashboard
 
-## 🚀 Deploy
+## 🚀 Deploy no Replit
 
-### Preparação para Produção
+### 1. Importar Projeto
+1. Acesse [replit.com](https://replit.com)
+2. Clique em "Create Repl"
+3. Selecione "Import from GitHub" ou faça upload do ZIP
+4. Aguarde a instalação das dependências
+
+### 2. Configurar Variáveis de Ambiente
+1. No painel lateral, clique em "Secrets"
+2. Adicione as seguintes variáveis:
+   - \`DATABASE_URL\`: URL do seu banco PostgreSQL ou Neon Database
+   - \`SESSION_SECRET\`: Uma string aleatória e segura
+
+### 3. Executar Migrações
+No console do Replit, execute:
 \`\`\`bash
-npm run build
+npm run db:push
 \`\`\`
 
-### Deploy no Replit
-1. Importe o projeto no Replit
-2. Configure as variáveis de ambiente
-3. Execute \`npm run db:push\`
-4. Clique em Deploy
+### 4. Deploy
+1. Clique na aba "Deploy"
+2. Configure o deploy automático
+3. Sua aplicação estará disponível na URL gerada pelo Replit
+
+## 🔧 Solução de Problemas
+
+### Erro de CORS
+Se encontrar erros de CORS, certifique-se de que está acessando a aplicação pela URL correta do Replit.
+
+### Problema com Banco de Dados
+- Verifique se a \`DATABASE_URL\` está correta
+- Execute \`npm run db:push\` para aplicar as migrações
+- Para Neon Database, certifique-se de que o IP do Replit está na whitelist
+
+### Extensão Chrome não Funciona
+- Certifique-se de estar logado no dashboard primeiro
+- Verifique se a extensão tem permissão para acessar web.whatsapp.com
+- Recarregue a extensão se necessário
 
 ## 📝 Próximas Funcionalidades
 
