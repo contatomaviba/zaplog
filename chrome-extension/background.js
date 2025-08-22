@@ -1,5 +1,5 @@
 // Background script for Zaplog extension
-const APP_URL = 'https://58d798eb-7b5e-417f-adb6-e2bc29062245-00-26cl25mzz3uja.riker.replit.dev';
+const APP_URL = 'http://localhost:3000';
 
 chrome.runtime.onInstalled.addListener(() => {
   // Create context menu for WhatsApp Web

@@ -2,11 +2,13 @@
 (function() {
   'use strict';
 
+  const API_BASE = 'http://localhost:3000/api';
+
   // Wait for WhatsApp Web to load
   function waitForElement(selector, timeout = 10000) {
     return new Promise((resolve, reject) => {
       const startTime = Date.now();
-      
+
       function check() {
         const element = document.querySelector(selector);
         if (element) {
@@ -17,7 +19,7 @@
           setTimeout(check, 100);
         }
       }
-      
+
       check();
     });
   }
@@ -122,14 +124,14 @@
       const messageInput = document.querySelector('[contenteditable="true"][data-testid="message-compose"]');
       if (messageInput) {
         const message = "Olá! Por favor, envie sua localização atual para acompanhamento da viagem. Obrigado!";
-        
+
         // Set the message
         messageInput.textContent = message;
-        
+
         // Trigger input event
         const inputEvent = new Event('input', { bubbles: true });
         messageInput.dispatchEvent(inputEvent);
-        
+
         // Find and click send button
         setTimeout(() => {
           const sendButton = document.querySelector('[data-testid="send"]');
@@ -137,7 +139,7 @@
             sendButton.click();
           }
         }, 100);
-        
+
         return true;
       }
       return false;
@@ -151,18 +153,18 @@
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "extractContactInfo") {
       const contactInfo = extractContactInfo();
-      
+
       // Store contact info in Chrome storage
-      chrome.storage.local.set({ 
+      chrome.storage.local.set({
         contactData: {
           ...contactInfo,
           timestamp: Date.now()
         }
       });
-      
+
       // Show trip form notification
       showTripFormNotification(contactInfo);
-      
+
       sendResponse({ success: true, data: contactInfo });
     } else if (request.action === "sendLocationRequest") {
       const success = sendLocationRequest();
@@ -196,7 +198,7 @@
       max-width: 320px;
       animation: slideIn 0.3s ease-out;
     `;
-    
+
     notification.innerHTML = `
       <div style="display: flex; align-items: center; gap: 12px;">
         <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -212,7 +214,7 @@
         <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer; opacity: 0.8;">×</button>
       </div>
     `;
-    
+
     // Add animation styles
     const style = document.createElement('style');
     style.textContent = `
@@ -222,9 +224,9 @@
       }
     `;
     document.head.appendChild(style);
-    
+
     document.body.appendChild(notification);
-    
+
     // Auto-remove after 8 seconds
     setTimeout(() => {
       if (notification.parentElement) {
@@ -236,7 +238,7 @@
 
   function initialize() {
     console.log('Zaplog content script loaded on WhatsApp Web');
-    
+
     // Add visual indicator that Zaplog is active
     waitForElement('body').then(() => {
       if (!document.getElementById('zaplog-indicator')) {
@@ -257,7 +259,7 @@
         `;
         indicator.textContent = 'Zaplog Ativo';
         document.body.appendChild(indicator);
-        
+
         // Hide indicator after 3 seconds
         setTimeout(() => {
           indicator.style.opacity = '0';

@@ -90,7 +90,7 @@ Sistema completo de gestão logística com dashboard web e extensão Chrome para
 - **Node.js** com Express
 - **TypeScript**
 - **Drizzle ORM**
-- **PostgreSQL** (Neon Database)
+- **PostgreSQL** (local ou Neon Database)
 - **Passport.js** para autenticação
 
 ### Extensão Chrome
@@ -102,19 +102,53 @@ Sistema completo de gestão logística com dashboard web e extensão Chrome para
 ## 🚀 Como Executar Localmente
 
 ### Pré-requisitos
-- Node.js 18+ 
-- PostgreSQL ou conta no Neon Database
+- **Node.js 18+** 
+- **PostgreSQL** instalado localmente OU conta no [Neon Database](https://neon.tech)
 
-### 1. Instalar Dependências
+### 1. Extrair e Navegar
 \`\`\`bash
+# Extrair o arquivo ZIP
+unzip zaplog-project.zip
+cd zaplog-project
+
+# Instalar dependências
 npm install
 \`\`\`
 
 ### 2. Configurar Banco de Dados
+
+#### Opção A: PostgreSQL Local
 \`\`\`bash
-# Criar arquivo .env na raiz com:
-DATABASE_URL="sua_url_do_postgres"
-SESSION_SECRET="seu_secret_aqui"
+# Instalar PostgreSQL (Ubuntu/Debian)
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+
+# Criar banco de dados
+sudo -u postgres createdb zaplog
+
+# Criar arquivo .env na raiz:
+cp .env.example .env
+\`\`\`
+
+Edite o arquivo \`.env\`:
+\`\`\`env
+DATABASE_URL="postgresql://postgres:sua_senha@localhost:5432/zaplog"
+SESSION_SECRET="sua_chave_secreta_muito_segura_aqui"
+NODE_ENV="development"
+PORT=3000
+\`\`\`
+
+#### Opção B: Neon Database (Recomendado)
+1. Acesse [neon.tech](https://neon.tech) e crie uma conta gratuita
+2. Crie um novo projeto
+3. Copie a URL de conexão
+4. Configure o \`.env\`:
+
+\`\`\`env
+DATABASE_URL="sua_url_do_neon_aqui"
+SESSION_SECRET="sua_chave_secreta_muito_segura_aqui"
+NODE_ENV="development"
+PORT=3000
 \`\`\`
 
 ### 3. Executar Migrações
@@ -127,7 +161,7 @@ npm run db:push
 npm run dev
 \`\`\`
 
-A aplicação estará disponível em: http://localhost:5000
+A aplicação estará disponível em: **http://localhost:3000**
 
 ## 🎯 Como Instalar a Extensão Chrome
 

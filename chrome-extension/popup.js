@@ -125,10 +125,10 @@
       submitBtn.textContent = 'Criando...';
 
       await createTrip(tripData);
-      
+
       // Clear contact data
       chrome.storage.local.remove('contactData');
-      
+
       showState('successState');
     } catch (error) {
       showError(error.message);
