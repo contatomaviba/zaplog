@@ -1,0 +1,75 @@
+Zaplog - Sistema de Gestão Logística
+Visão Geral
+Sistema integrado para gerenciamento de viagens logísticas que conecta WhatsApp Web com um dashboard web através de uma extensão do Chrome.
+
+Componentes Principais
+1. Aplicação Web (Frontend)
+Framework: React 18 + TypeScript
+UI: Shadcn/ui + Tailwind CSS
+Roteamento: Wouter
+Estado: React Query + React Hooks
+Formulários: React Hook Form + Zod
+Funcionalidades:
+
+Sistema de autenticação (login/registro)
+Dashboard com estatísticas de viagens
+Tabela de viagens ativas
+Formulário de criação de viagens
+Sistema de planos (Free/Standard/Pro)
+Integração com WhatsApp Web
+2. API Backend
+Framework: Express.js + TypeScript
+ORM: Drizzle ORM
+Banco: PostgreSQL (Neon serverless)
+Autenticação: JWT tokens
+Endpoints:
+
+/api/auth/* - Autenticação (login, registro, logout)
+/api/trips/* - CRUD de viagens
+Middleware de autenticação
+Validação com Zod schemas
+3. Extensão do Chrome
+Manifest V3
+Content Script: Integração com WhatsApp Web
+Background Service Worker: Comunicação entre componentes
+Popup: Interface rápida para criação de viagens
+Funcionalidades:
+
+Extração automática de contatos do WhatsApp Web
+Menu de contexto para iniciar acompanhamento
+Notificações visuais
+Sincronização com o dashboard web
+Estrutura do Banco de Dados
+Tabela Users
+id, email, password, plan, createdAt
+Planos: free (limite 3 viagens), standard, pro
+Tabela Trips
+id, userId, driverName, phone, plate
+origin, destination, status, lastLocation
+observations, isActive, timestamps
+Fluxo de Trabalho
+Usuário acessa WhatsApp Web
+Extensão detecta conversa ativa
+Extrai informações do contato automaticamente
+Permite criar viagem através do popup ou menu contextual
+Dados sincronizam com o dashboard web
+Acompanhamento em tempo real das viagens
+Planos e Limitações
+Free: Máximo 3 viagens ativas
+Standard/Pro: Viagens ilimitadas
+Banner de upgrade integrado no dashboard
+Tecnologias e Dependências
+Frontend: React, Vite, Tailwind, Radix UI, Lucide Icons
+Backend: Express, Drizzle ORM, Zod, Neon Database
+Chrome Extension: Manifest V3, Content Scripts, Background Worker
+Deploy: Configurado para Replit com build automatizado
+Estado Atual
+O projeto está funcionando localmente com:
+
+Autenticação implementada e funcionando
+Dashboard operacional com estatísticas
+Extensão do Chrome desenvolvida
+Integração WhatsApp Web ativa
+API REST completa
+Banco de dados configurado
+O sistema está pronto para uso em desenvolvimento e preparado para deploy no Replit.
