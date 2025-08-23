@@ -1,5 +1,5 @@
 import { users, trips, type User, type InsertUser, type Trip, type InsertTrip } from "@shared/schema";
-import { db } from "./db";
+import { db } from "./db.js";
 import { eq, and, desc, count } from "drizzle-orm";
 
 export interface IStorage {

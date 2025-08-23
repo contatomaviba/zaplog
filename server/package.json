@@ -1,0 +1,8 @@
+{
+  "name": "zaplog-server",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --project ../tsconfig.server.json"
+  }
+}
