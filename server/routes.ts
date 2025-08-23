@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage.js";
-import { loginSchema, registerSchema, insertTripSchema } from "../shared/schema";
+import { loginSchema, registerSchema, insertTripSchema } from "../shared/schema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 

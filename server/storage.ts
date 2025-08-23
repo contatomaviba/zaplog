@@ -1,4 +1,4 @@
-import { users, trips, type User, type InsertUser, type Trip, type InsertTrip } from "../shared/schema";
+import { users, trips, type User, type InsertUser, type Trip, type InsertTrip } from "../shared/schema.js";
 import { db } from "./db.js";
 import { eq, and, desc, count } from "drizzle-orm";
 
