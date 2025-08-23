@@ -31,9 +31,12 @@ app.use(express.json());
 registerRoutes(app);
 
 // --- INICIALIZAÇÃO DO SERVIDOR ---
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
-});
+// A Vercel gerencia a inicialização do servidor, então o app.listen é mais para o ambiente local.
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Servidor local rodando na porta ${PORT}`);
+    });
+}
 
-// Exporta o app para a Vercel
+// Exporta o app para a Vercel poder usá-lo como uma função serverless
 export default app;
