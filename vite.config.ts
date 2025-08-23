@@ -4,7 +4,7 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  // Aponta para a raiz do código do cliente
+  // Define a raiz do código do cliente
   root: 'client',
   resolve: {
     alias: {
@@ -12,8 +12,8 @@ export default defineConfig({
     },
   },
   build: {
-    // Constrói os arquivos para uma pasta 'dist' DENTRO de 'client'
-    outDir: 'dist',
+    // IMPORTANTE: Constrói os arquivos para a pasta 'dist' na RAIZ do projeto
+    outDir: '../dist',
     emptyOutDir: true,
   },
   server: {
