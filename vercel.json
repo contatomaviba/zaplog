@@ -16,11 +16,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/index.ts"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/dist/assets/$1"
+      "dest": "/server/index.ts"
     },
     {
       "src": "/(.*)",
