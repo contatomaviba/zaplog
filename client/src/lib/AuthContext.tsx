@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useLocation } from 'wouter'; // <-- Adicione esta linha
 import { authApi, isAuthenticated } from './auth';
 
 interface AuthContextType {
@@ -13,9 +14,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuth, setIsAuth] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [, setLocation] = useLocation(); // <-- Adicione esta linha
 
   useEffect(() => {
-    // Verifica o token no carregamento inicial
     setIsAuth(isAuthenticated());
     setIsLoading(false);
   }, []);
@@ -28,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     authApi.logout();
     setIsAuth(false);
+    setLocation('/login'); // <-- Adicione esta linha para redirecionar
   };
 
   return (
