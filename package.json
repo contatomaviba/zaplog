@@ -1,8 +1,12 @@
 {
-  "name": "rest-express",
+  "name": "zaplog-monorepo",
   "version": "1.0.0",
-  "type": "module",
-  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "NODE_ENV=development tsx server/index.ts",
@@ -86,8 +90,6 @@
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
-    "@replit/vite-plugin-cartographer": "^0.3.0",
-    "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "^4.1.3",
     "@types/connect-pg-simple": "^7.0.3",
