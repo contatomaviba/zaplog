@@ -55,10 +55,11 @@ export default function Login() {
   });
 
   const loginMutation = useMutation({
-    mutationFn: ({ email, password }: LoginFormData) => authApi.login(email, password),
-    onSuccess: () => {
-      toast({ title: "Login realizado com sucesso!" });
-      setLocation("/dashboard");
+  mutationFn: ({ email, password }: LoginFormData) => authApi.login(email, password),
+  onSuccess: () => {
+    toast({ title: "Login realizado com sucesso!" });
+    // Força um recarregamento da página para o dashboard
+    window.location.href = "/dashboard";
     },
     onError: (error: any) => {
       toast({
