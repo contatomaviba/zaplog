@@ -1,2 +1,2 @@
-const app = require('../dist/server/index.js').default;
-module.exports = app;
+import app from '../dist/server/index.js';
+export default app;
