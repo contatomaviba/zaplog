@@ -1,7 +1,7 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
-import * as schema from "@shared/schema.js"; // Garanta que a extensão .js está aqui
+import * as schema from "../shared/schema.js";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL must be set in Vercel environment variables.");

@@ -1,22 +1,44 @@
-import express from "express";
-import cors from "cors";
-import { registerRoutes } from "./routes.js"; // A correção está aqui
+// server/index.ts
+import express, { type Express } from "express";
+import cors, { type CorsOptions } from "cors";
+import { registerRoutes } from "./routes.js";
 
-const PORT = process.env.PORT || 5000;
-const app = express();
+const app: Express = express();
 
-const allowedOrigins = [
-  'https://zaplog-five.vercel.app',
-  'http://localhost:5173',
-];
+// domínios fixos conhecidos
+const allowedOrigins = new Set<string>([
+  "http://localhost:5173",
+  "https://zaplog-five.vercel.app", // se ainda usar esse
+]);
 
-const corsOptions = {
-  origin: (origin: string | undefined, callback: Function) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
+// helper p/ liberar domínios do Vercel e um domínio custom via env
+function isAllowedOrigin(origin?: string): boolean {
+  if (!origin) return true; // permite tools (Postman/cURL)
+
+  if (allowedOrigins.has(origin)) return true;
+
+  // Vercel define VERCEL_URL sem protocolo (ex.: zaplog-abc123.vercel.app)
+  if (process.env.VERCEL_URL && origin === `https://${process.env.VERCEL_URL}`) {
+    return true;
+  }
+
+  // Qualquer preview/prod do seu projeto no Vercel (zaplog-*.vercel.app)
+  if (/^https:\/\/zaplog-[a-z0-9-]+\.vercel\.app$/.test(origin)) {
+    return true;
+  }
+
+  // opcional: um domínio do cliente via env (ex.: CLIENT_ORIGIN=https://app.seudominio.com)
+  if (process.env.CLIENT_ORIGIN && origin === process.env.CLIENT_ORIGIN) {
+    return true;
+  }
+
+  return false;
+}
+
+const corsOptions: CorsOptions = {
+  origin: (origin, cb) => {
+    if (isAllowedOrigin(origin)) cb(null, true);
+    else cb(new Error("Not allowed by CORS"));
   },
   credentials: true,
 };
@@ -26,10 +48,11 @@ app.use(express.json());
 
 registerRoutes(app);
 
+// Em produção (Vercel) não fazemos listen.
+// Em dev, ligamos localmente:
 if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, () => {
-    console.log(`🚀 Servidor local rodando na porta ${PORT}`);
-  });
+  const PORT = Number(process.env.PORT) || 5000;
+  app.listen(PORT, () => console.log(`🚀 Servidor local na porta ${PORT}`));
 }
 
 export default app;
