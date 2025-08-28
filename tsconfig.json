@@ -1,23 +1,24 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
-    "moduleResolution": "bundler",
-    "strict": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "jsx": "react-jsx",
-    "noEmit": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx", // ou "react-jsxdev" ou "preserve", dependendo do seu framework (React, Preact, etc.)
 
-    // --- A CORREÇÃO ESTÁ AQUI ---
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"]
-    }
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
   },
-  "include": ["client", "server", "shared"]
+  "include": ["client"], // Onde seus arquivos TypeScript do cliente estão
 }

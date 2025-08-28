@@ -1,32 +1,28 @@
-// vercel.json
 {
   "version": 2,
-  "installCommand": "npm install", // Garante que todas as dependências sejam instaladas
-  "buildCommand": "npm run build", // Usa o script 'build' do seu package.json raiz (que já faz 'build:client' e 'build:server')
-  "builds": [
+  "installCommand": "npm install",
+  "buildCommand": "npm run build", // Este comando executa 'npm run build:client && npm run build:server', criando as pastas 'dist/' e 'dist/server/'
+
+  "functions": {
+    "api/index.js": { // Define sua função serverless principal, cujo ponto de entrada é 'api/index.js'
+      "runtime": "nodejs22.x", // **Verifique e ajuste esta versão do Node.js se necessário (ex: nodejs18.x, etc.)**
+      "includeFiles": [
+        "dist/**" // **CRUCIAL:** Isso garante que TODA a pasta 'dist' (contendo o build do cliente e o build compilado do servidor) seja incluída no pacote da sua função serverless.
+      ]
+    }
+  },
+
+  "routes": [
     {
-      "src": "client/package.json", // Se for o caso de um package.json separado para o client. Se não, pode ser o da raiz.
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "client/dist"
-      }
+      "src": "/api/(.*)",
+      "dest": "api/index.js" // Encaminha todas as requisições que começam com '/api/' para sua função serverless
     },
     {
-      "src": "server/index.ts", // Ponto de entrada do seu backend (arquivo fonte TypeScript)
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "dist/server/**", // Inclui o diretório de saída do build do server (o que a Vercel vai executar)
-          "shared/**"       // Inclui a pasta shared, caso haja algum arquivo que não seja compilado diretamente no dist/server mas seja necessário.
-        ]
-      }
+      "src": "/(.*)",
+      "dest": "/dist/$1" // Serve todos os outros caminhos (seu frontend estático) a partir da pasta 'dist'
     }
   ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api" }, // Roteia todas as requisições que começam com /api/ para sua função serverless
-    { "handle": "filesystem" },             // Permite que arquivos estáticos sejam servidos diretamente
-    { "src": "/(.*)", "dest": "/client/dist/$1" } // Rota fallback para o frontend, servindo arquivos estáticos
-  ],
+
   "env": {
     "DATABASE_URL": "postgresql://neondb_owner:npg_7plZv5VUwjdO@ep-long-firefly-adtiwd8k.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
     "JWT_SECRET": "sua_chave_secreta"
