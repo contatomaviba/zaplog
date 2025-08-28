@@ -1,25 +1,14 @@
 {
   "version": 2,
-  "installCommand": "npm install",
-  "buildCommand": "npm run build",
   "builds": [
-    {
-      "src": "dist/server/index.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": "dist/**"
-      }
-    }
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } },
+    { "src": "api/**/*.js", "use": "@vercel/node", "config": { "includeFiles": "dist/**" } }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "dist/server/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/$1"
-    }
+    { "src": "/api/(.*)", "dest": "/api/index.js" },
+    { "src": "/assets/(.*)", "dest": "/dist/assets/$1" },
+    { "src": "/(favicon\\.ico|manifest\\.json|robots\\.txt)", "dest": "/dist/$1" },
+    { "src": "/(.*)", "dest": "/dist/index.html" }
   ],
   "env": {
     "DATABASE_URL": "postgresql://neondb_owner:npg_7plZv5VUwjdO@ep-long-firefly-adtiwd8k.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
