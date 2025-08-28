@@ -16,11 +16,6 @@
       "src": "/api/(.*)",
       "dest": "api/index.js"
     }
-    // AQUI REMOVEMOS A ROTA PARA OS ARQUIVOS ESTÁTICOS
-    // {
-    //   "src": "/(.*)",
-    //   "dest": "/dist/$1"
-    // }
   ],
   "env": {
     "DATABASE_URL": "postgresql://neondb_owner:npg_7plZv5VUwjdO@ep-long-firefly-adtiwd8k.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
