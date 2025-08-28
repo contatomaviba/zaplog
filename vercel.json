@@ -1,14 +1,34 @@
+// vercel.json
 {
   "version": 2,
+  "installCommand": "npm install", // Garante que todas as dependências sejam instaladas
+  "buildCommand": "npm run build", // Usa o script 'build' do seu package.json raiz (que já faz 'build:client' e 'build:server')
   "builds": [
-    { "src": "package.json", "use": "@vercel/static-build",
-      "config": { "distDir": "client/dist", "buildCommand": "npm run build" } },
-    { "src": "api/index.js", "use": "@vercel/node",
-      "config": { "includeFiles": ["dist/server/**"] } }
+    {
+      "src": "client/package.json", // Se for o caso de um package.json separado para o client. Se não, pode ser o da raiz.
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "client/dist"
+      }
+    },
+    {
+      "src": "server/index.ts", // Ponto de entrada do seu backend (arquivo fonte TypeScript)
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "dist/server/**", // Inclui o diretório de saída do build do server (o que a Vercel vai executar)
+          "shared/**"       // Inclui a pasta shared, caso haja algum arquivo que não seja compilado diretamente no dist/server mas seja necessário.
+        ]
+      }
+    }
   ],
   "routes": [
-  { "src": "^/api/(.*)$", "dest": "api/index.js" },
-    { "handle": "filesystem" },
-    { "src": "^(?!/api/).*$", "dest": "client/dist/index.html" }
-  ]
+    { "src": "/api/(.*)", "dest": "/api" }, // Roteia todas as requisições que começam com /api/ para sua função serverless
+    { "handle": "filesystem" },             // Permite que arquivos estáticos sejam servidos diretamente
+    { "src": "/(.*)", "dest": "/client/dist/$1" } // Rota fallback para o frontend, servindo arquivos estáticos
+  ],
+  "env": {
+    "DATABASE_URL": "postgresql://neondb_owner:npg_7plZv5VUwjdO@ep-long-firefly-adtiwd8k.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+    "JWT_SECRET": "sua_chave_secreta"
+  }
 }

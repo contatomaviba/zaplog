@@ -1,4 +1,3 @@
 import app from '../dist/server/index.js';
-export default function handler(req, res) {
-	app(req, res);
-}
+import serverless from 'serverless-http';
+export default serverless(app);
