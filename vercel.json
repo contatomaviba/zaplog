@@ -9,6 +9,7 @@
   },
   
   "routes": [
+    { "src": "/api/_ping", "dest": "/api/_ping.js" },
     { "src": "/api/(.*)", "dest": "/api/index.js" },
     { "src": "/assets/(.*)", "dest": "/dist/assets/$1" },
     { "src": "/(favicon\\.ico|manifest\\.json|robots\\.txt)", "dest": "/dist/$1" },
