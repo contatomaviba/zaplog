@@ -1,6 +1,6 @@
 import { users, trips, type User, type InsertUser, type Trip, type InsertTrip } from "../shared/schema.js";
 import { db } from "./db.js";
-import { eq, and, desc, count } from "drizzle-orm";
+import { eq, and, desc, count, or, ne } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -13,6 +13,7 @@ export interface IStorage {
   getTrip(id: string): Promise<Trip | undefined>;
   getTripsByUserId(userId: string): Promise<Trip[]>;
   getActiveTripsCount(userId: string): Promise<number>;
+  hasOngoingTripFor(userId: string, driverName: string, plate: string): Promise<boolean>;
   createTrip(trip: InsertTrip & { userId: string }): Promise<Trip>;
   updateTrip(id: string, updates: Partial<Trip>): Promise<Trip | undefined>;
   deleteTrip(id: string): Promise<boolean>;
@@ -71,8 +72,24 @@ export class DatabaseStorage implements IStorage {
     const [result] = await db
       .select({ count: count() })
       .from(trips)
-      .where(and(eq(trips.userId, userId), eq(trips.isActive, true)));
+      .where(and(eq(trips.userId, userId), eq(trips.isActive, true), ne(trips.status, 'completed'), ne(trips.status, 'cancelled')));
     return result.count;
+  }
+
+  async hasOngoingTripFor(userId: string, driverName: string, plate: string): Promise<boolean> {
+    const [result] = await db
+      .select({ count: count() })
+      .from(trips)
+      .where(
+        and(
+          eq(trips.userId, userId),
+          eq(trips.isActive, true),
+          ne(trips.status, 'completed'),
+          ne(trips.status, 'cancelled'),
+          or(eq(trips.driverName, driverName), eq(trips.plate, plate))
+        )
+      );
+    return (result?.count ?? 0) > 0;
   }
 
   async createTrip(trip: InsertTrip & { userId: string }): Promise<Trip> {

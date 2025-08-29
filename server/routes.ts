@@ -1,4 +1,4 @@
-// server/routes.ts
+﻿// server/routes.ts
 import type { Express, Request, Response, NextFunction } from "express";
 import { storage } from "./storage.js";
 import { loginSchema, registerSchema, insertTripSchema } from "../shared/schema.js";
@@ -102,7 +102,13 @@ export function registerRoutes(app: Express): void {
         }
       }
 
-      const trip = await storage.createTrip({ ...data, userId: req.user!.userId });
+      // Regra: impedir nova viagem em trânsito para mesmo motorista/placa
+      if ((data.status ?? 'pending') === 'active') {
+        const hasOngoing = await storage.hasOngoingTripFor(req.user!.userId, data.driverName, data.plate);
+        if (hasOngoing) {
+          return res.status(409).json({ message: "Já existe viagem em andamento para este motorista/placa" });
+        }
+      }      const trip = await storage.createTrip({ ...data, userId: req.user!.userId });
       res.status(201).json({ trip });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -117,7 +123,17 @@ export function registerRoutes(app: Express): void {
       if (!existing || existing.userId !== req.user!.userId) {
         return res.status(404).json({ message: "Viagem não encontrada" });
       }
-      const trip = await storage.updateTrip(tripId, updates);
+      // Se for ativar, checar conflitos por motorista/placa
+      if (updates?.status === 'active') {
+        const hasOngoing = await storage.hasOngoingTripFor(req.user!.userId, (existing as any).driverName, (existing as any).plate);
+        if (hasOngoing && existing.status !== 'active') {
+          return res.status(409).json({ message: "Já existe viagem em andamento para este motorista/placa" });
+        }
+      }
+      if (updates?.status === 'completed') {
+        updates.isActive = false;
+        if (typeof updates.progress !== 'number') updates.progress = 100;
+      }      const trip = await storage.updateTrip(tripId, updates);
       res.json({ trip });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -152,6 +168,34 @@ export function registerRoutes(app: Express): void {
   // ------- Diagnóstico -------
   app.get("/api/ping", (_req: Request, res: Response) => {
     res.json({ ok: true, ts: Date.now() });
+  });
+
+  // Dev helpers (disabled in production)
+  app.all("/api/debug/seed", async (req: Request, res: Response) => {
+    if (process.env.NODE_ENV === "production") {
+      return res.status(403).json({ message: "Not available in production" });
+    }
+    try {
+      const q = req.method === "GET" ? req.query : req.body;
+      const email = String((q as any).email ?? "teste@zaplog.com");
+      const password = String((q as any).password ?? "123456");
+      const name = String((q as any).name ?? "Teste Local");
+
+      let user = await storage.getUserByEmail(email);
+      if (!user) {
+        const hashed = bcrypt.hashSync(password, 10);
+        user = await storage.createUser({ email, password: hashed, name, plan: "free" } as any);
+      }
+      const token = jwt.sign({ userId: (user as any).id, email: (user as any).email }, JWT_SECRET);
+      const { password: _p, ...userResponse } = user as any;
+      res.json({ user: userResponse, token });
+    } catch (err: any) {
+      res.status(400).json({ message: err.message || "seed failed" });
+    }
+  });
+
+  app.post("/api/debug/echo", (req: Request, res: Response) => {
+    res.json({ received: req.body });
   });
 
   app.get("/api/debug/env", (_req: Request, res: Response) => {
