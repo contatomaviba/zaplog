@@ -1,11 +1,12 @@
+import express from "express";
+import cors from "cors";
 import serverless from "serverless-http";
-import app from "../server/index.js";
+import { registerRoutes } from "../server/routes.js";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// Build the Express app directly inside the Function
+const app = express();
+app.use(cors());
+app.use(express.json());
+registerRoutes(app);
 
 export default serverless(app);
-
