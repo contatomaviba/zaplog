@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/lib/auth";
 import { useLocation } from "wouter";
-import { Eye, MessageCircle, XCircle, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Eye, MessageCircle, XCircle, CheckCircle, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
 import Sidebar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
 import TripModal from "@/components/modals/trip-modal";
@@ -22,6 +22,7 @@ export default function TripsPage() {
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const queryClient = useQueryClient();
   
   // Pagination and filtering
   const [currentPage, setCurrentPage] = useState(1);
@@ -196,6 +197,32 @@ export default function TripsPage() {
     window.open(whatsappUrl, '_blank');
   };
 
+  // Mutations: cancel and complete
+  const cancelTrip = useMutation({
+    mutationFn: async (tripId: string) => {
+      const res = await fetch(`/api/trips/${tripId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authApi.getToken()}` },
+        body: JSON.stringify({ status: 'cancelled', isActive: false }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/trips"] }); },
+  });
+  const completeTrip = useMutation({
+    mutationFn: async (tripId: string) => {
+      const res = await fetch(`/api/trips/${tripId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authApi.getToken()}` },
+        body: JSON.stringify({ status: 'completed', isActive: false, progress: 100 }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/trips"] }); },
+  });
+
   return (
     <div className="min-h-screen bg-gray-50" data-testid="trips-page">
       <Sidebar user={user} activeTripsCount={activeTripsCount} />
@@ -307,6 +334,9 @@ export default function TripsPage() {
                       </button>
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Observação
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       <button
                         className="flex items-center gap-1 hover:text-gray-700"
                         onClick={() => handleSort('createdAt')}
@@ -375,6 +405,24 @@ export default function TripsPage() {
                             {getStatusText(trip.status)}
                           </span>
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <input
+                            className="w-56 border rounded px-2 py-1 text-sm"
+                            defaultValue={trip.observations || ''}
+                            placeholder="Observação da viagem"
+                            onKeyDown={async (e) => {
+                              if (e.key === 'Enter') {
+                                const value = (e.target as HTMLInputElement).value;
+                                await fetch(`/api/trips/${trip.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authApi.getToken()}` },
+                                  body: JSON.stringify({ observations: value }),
+                                });
+                                queryClient.invalidateQueries({ queryKey: ["/api/trips"] });
+                              }
+                            }}
+                          />
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-testid={`trip-date-${trip.id}`}>
                           {trip.createdAt ? new Date(trip.createdAt).toLocaleDateString('pt-BR') : 'N/A'}
                         </td>
@@ -401,14 +449,28 @@ export default function TripsPage() {
                               <MessageCircle className="h-4 w-4" />
                             </Button>
                             {trip.status !== 'completed' && trip.status !== 'cancelled' && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-red-600 hover:text-red-800"
-                                data-testid={`button-cancel-${trip.id}`}
-                              >
-                                <XCircle className="h-4 w-4" />
-                              </Button>
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-blue-600 hover:text-blue-800"
+                                  onClick={() => completeTrip.mutate(trip.id)}
+                                  data-testid={`button-complete-${trip.id}`}
+                                >
+                                  <CheckCircle className="h-4 w-4" />
+                                  <span className="sr-only md:not-sr-only md:text-xs ml-1">Finalizar</span>
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-800"
+                                  onClick={() => cancelTrip.mutate(trip.id)}
+                                  data-testid={`button-cancel-${trip.id}`}
+                                >
+                                  <XCircle className="h-4 w-4" />
+                                  <span className="sr-only md:not-sr-only md:text-xs ml-1">Cancelar</span>
+                                </Button>
+                              </>
                             )}
                           </div>
                         </td>

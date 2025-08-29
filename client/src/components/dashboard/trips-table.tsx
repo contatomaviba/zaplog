@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, MessageCircle, XCircle, ArrowRight, Search, AlertTriangle } from "lucide-react";
+import { Eye, MessageCircle, XCircle, CheckCircle, ArrowRight, Search, AlertTriangle } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,11 +23,41 @@ export default function TripsTable({ trips, user, onUpgrade, isDashboard = false
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Complete trip mutation
+  const completeTripMutation = useMutation({
+    mutationFn: async (tripId: string) => {
+      const response = await apiRequest("PATCH", `/api/trips/${tripId}`, {
+        status: "completed",
+        isActive: false,
+        progress: 100,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Viagem finalizada com sucesso!" });
+      queryClient.invalidateQueries({ queryKey: ["/api/trips"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao finalizar viagem",
+        description: error.message || "Erro interno do servidor",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCompleteTrip = (trip: Trip) => {
+    if (confirm(`Finalizar a viagem de ${trip.driverName}?`)) {
+      completeTripMutation.mutate(trip.id);
+    }
+  };
 
   // Handle WhatsApp integration
   const handleWhatsAppContact = (trip: Trip) => {
     const phone = trip.phone.replace(/\D/g, '');
-    const whatsappUrl = `https://web.whatsapp.com/send?phone=55${phone}&text=OlÃ¡%20${encodeURIComponent(trip.driverName)},%20como%20estÃ¡%20sua%20viagem?`;
+    const whatsappUrl = `https://web.whatsapp.com/send?phone=55${phone}&text=Olá%20${encodeURIComponent(trip.driverName)},%20como%20está%20sua%20viagem?`;
     window.open(whatsappUrl, '_blank');
   };
 
@@ -92,11 +122,11 @@ export default function TripsTable({ trips, user, onUpgrade, isDashboard = false
   const getStatusText = (status: string) => {
     switch (status) {
       case 'active':
-        return 'Em TrÃ¢nsito';
+        return 'Em Trânsito';
       case 'pending':
         return 'Aguardando';
       case 'completed':
-        return 'ConcluÃ­da';
+        return 'Concluída';
       case 'cancelled':
         return 'Cancelada';
       default:
@@ -115,7 +145,7 @@ export default function TripsTable({ trips, user, onUpgrade, isDashboard = false
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900" data-testid="table-title">
-            {isDashboard ? "Ãšltimas Viagens" : "Viagens Ativas"}
+            {isDashboard ? "Últimas Viagens" : "Viagens Ativas"}
           </h3>
           <div className="flex items-center space-x-3">
             <div className="relative">
@@ -137,7 +167,7 @@ export default function TripsTable({ trips, user, onUpgrade, isDashboard = false
                 <SelectItem value="all">Todos os Status</SelectItem>
                 <SelectItem value="active">Ativa</SelectItem>
                 <SelectItem value="pending">Aguardando</SelectItem>
-                <SelectItem value="completed">ConcluÃ­da</SelectItem>
+                <SelectItem value="completed">Concluída</SelectItem>
                 <SelectItem value="cancelled">Cancelada</SelectItem>
               </SelectContent>
             </Select>
@@ -159,10 +189,13 @@ export default function TripsTable({ trips, user, onUpgrade, isDashboard = false
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Observação
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Progresso
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                AÃ§Ãµes
+                Ações
               </th>
             </tr>
           </thead>
@@ -210,6 +243,24 @@ export default function TripsTable({ trips, user, onUpgrade, isDashboard = false
                           data-testid={`trip-status-${trip.id}`}>
                       {getStatusText(trip.status)}
                     </span>
+                  </td>                  <td className="px-6 py-4 whitespace-nowrap">
+                    <input
+                      className="w-56 border rounded px-2 py-1 text-sm"
+                      defaultValue={trip.observations || ""}
+                      placeholder="Observação da viagem"
+                      onKeyDown={async (e) => {
+                        if (e.key === 'Enter') {
+                          const value = (e.target as HTMLInputElement).value;
+                          try {
+                            await apiRequest('PATCH', /api/trips/, { observations: value });
+                            toast({ title: 'Observação salva' });
+                            queryClient.invalidateQueries({ queryKey: ["/api/trips"] });
+                          } catch (err: any) {
+                            toast({ title: 'Erro ao salvar observação', description: err.message, variant: 'destructive' });
+                          }
+                        }
+                      }}
+                    />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -219,7 +270,7 @@ export default function TripsTable({ trips, user, onUpgrade, isDashboard = false
                         data-testid={`trip-progress-${trip.id}`}
                       ></div>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">{trip.progress}% concluÃ­da</div>
+                    <div className="text-xs text-gray-500 mt-1">{trip.progress}% concluída</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center space-x-2">
@@ -240,15 +291,28 @@ export default function TripsTable({ trips, user, onUpgrade, isDashboard = false
                         <MessageCircle className="h-4 w-4" />
                       </button>
                       {trip.status !== 'completed' && trip.status !== 'cancelled' && (
-                        <button 
-                          className="text-red-600 hover:text-red-900 p-1 rounded disabled:opacity-50"
-                          title="Cancelar viagem"
-                          onClick={() => handleCancelTrip(trip)}
-                          disabled={cancelTripMutation.isPending}
-                          data-testid={`button-cancel-${trip.id}`}
-                        >
-                          <XCircle className="h-4 w-4" />
-                        </button>
+                        <>
+                          <button 
+                            className="text-blue-600 hover:text-blue-900 p-1 rounded disabled:opacity-50 flex items-center gap-1"
+                            title="Finalizar viagem"
+                            onClick={() => handleCompleteTrip(trip)}
+                            disabled={completeTripMutation.isPending}
+                            data-testid={`button-complete-${trip.id}`}
+                          >
+                            <CheckCircle className="h-4 w-4" />
+                            <span className="sr-only md:not-sr-only md:text-xs">Finalizar</span>
+                          </button>
+                          <button 
+                            className="text-red-600 hover:text-red-900 p-1 rounded disabled:opacity-50 flex items-center gap-1"
+                            title="Cancelar viagem"
+                            onClick={() => handleCancelTrip(trip)}
+                            disabled={cancelTripMutation.isPending}
+                            data-testid={`button-cancel-${trip.id}`}
+                          >
+                            <XCircle className="h-4 w-4" />
+                            <span className="sr-only md:not-sr-only md:text-xs">Cancelar</span>
+                          </button>
+                        </>
                       )}
                     </div>
                   </td>
@@ -272,7 +336,7 @@ export default function TripsTable({ trips, user, onUpgrade, isDashboard = false
             <div className="flex items-center">
               <AlertTriangle className="h-5 w-5 text-amber-600 mr-2" />
               <span className="text-sm font-medium text-amber-800">
-                VocÃª estÃ¡ usando {activeTripsCount} de 3 viagens disponÃ­veis no plano Free
+                Você está usando {activeTripsCount} de 3 viagens disponíveis no plano Free
               </span>
             </div>
             <Button 
