@@ -2,7 +2,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { storage } from "./storage.js";
 import { loginSchema, registerSchema, insertTripSchema } from "../shared/schema.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
@@ -32,7 +32,7 @@ export function registerRoutes(app: Express): void {
       const existingUser = await storage.getUserByEmail(data.email);
       if (existingUser) return res.status(400).json({ message: "Email já está em uso" });
 
-      const hashedPassword = await bcrypt.hash(data.password, 10);
+      const hashedPassword = bcrypt.hashSync(data.password, 10);
       const user = await storage.createUser({
         email: data.email,
         password: hashedPassword,
@@ -54,7 +54,7 @@ export function registerRoutes(app: Express): void {
       const user = await storage.getUserByEmail(data.email);
       if (!user) return res.status(401).json({ message: "Credenciais inválidas" });
 
-      const valid = await bcrypt.compare(data.password, user.password);
+      const valid = bcrypt.compareSync(data.password, user.password);
       if (!valid) return res.status(401).json({ message: "Credenciais inválidas" });
 
       const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET);

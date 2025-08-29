@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-  "outDir": "dist/server",
+    "outDir": "dist",
+    "rootDir": ".",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "ES2020",
