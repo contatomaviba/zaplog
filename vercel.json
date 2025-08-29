@@ -4,13 +4,6 @@
   "outputDirectory": "dist",
   
   
-  "routes": [
-    { "src": "/api/_ping", "dest": "/api/_ping.js" },
-    { "src": "/api/(.*)", "dest": "/api/index.ts" },
-    { "src": "/assets/(.*)", "dest": "/dist/assets/$1" },
-    { "src": "/(favicon\\.ico|manifest\\.json|robots\\.txt)", "dest": "/dist/$1" },
-    { "src": "/(.*)", "dest": "/dist/index.html" }
-  ],
   "env": {
     "DATABASE_URL": "postgresql://neondb_owner:npg_7plZv5VUwjdO@ep-long-firefly-adtiwd8k.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
     "JWT_SECRET": "sua_chave_secreta"
