@@ -2,15 +2,11 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "functions": {
-    "api/**/*.js": {
-      "includeFiles": "dist/**"
-    }
-  },
+  
   
   "routes": [
     { "src": "/api/_ping", "dest": "/api/_ping.js" },
-    { "src": "/api/(.*)", "dest": "/api/index.js" },
+    { "src": "/api/(.*)", "dest": "/api/index.ts" },
     { "src": "/assets/(.*)", "dest": "/dist/assets/$1" },
     { "src": "/(favicon\\.ico|manifest\\.json|robots\\.txt)", "dest": "/dist/$1" },
     { "src": "/(.*)", "dest": "/dist/index.html" }
