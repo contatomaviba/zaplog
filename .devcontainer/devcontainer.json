@@ -1,0 +1,33 @@
+{
+  "name": "Zaplog Dev",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/zaplog",
+  "features": {},
+  "forwardPorts": [5000, 5173],
+  "portsAttributes": {
+    "5000": { "label": "API (Express)", "onAutoForward": "openBrowser" },
+    "5173": { "label": "Vite (Client)", "onAutoForward": "openBrowser" }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "remoteEnv": {
+    "DATABASE_URL": "postgresql://postgres:postgres@postgres:5432/zaplog",
+    "JWT_SECRET": "devsecret",
+    "NODE_ENV": "development",
+    "PORT": "5000"
+  },
+  "postCreateCommand": "bash -lc 'corepack enable || true; npm ci || npm install; npm run db:push || true'",
+  "shutdownAction": "stopCompose"
+}
+
