@@ -28,7 +28,10 @@ export default defineConfig({
     open: true,
     // permite importar arquivos fora do /client (ex.: /shared)
     fs: {
-      allow: [path.resolve(__dirname, "shared")],
+      allow: [
+        path.resolve(__dirname, "client"),
+        path.resolve(__dirname, "shared"),
+      ],
     },
     // só vale em DEV; em produção o vercel.json manda /api/ pra função serverless
     proxy: {

@@ -1,0 +1,14 @@
+page,section,key,label,type,required,options,validations,notes
+trips,table,driverName,Motorista,text,true,,min:2;max:80,Nome completo do motorista
+trips,table,phone,Telefone,phone,true,,pattern:^\d{10,11}$,Somente números com DDD
+trips,table,plate,Placa,text,true,,pattern:^[A-Z]{3}-?\d{4}$,Formato ABC-1234
+trips,table,origin,Origem,text,true,,,Cidade/Bairro de origem
+trips,table,destination,Destino,text,true,,,Cidade/Bairro de destino
+trips,table,status,Status,select,true,active|pending|completed|cancelled,,Badge com cores
+trips,table,observations,Observação,textarea,false,,,Salvar com Enter
+trips,table,progress,Progresso,percent,false,,min:0;max:100,Barra de progresso
+trips,actions,complete,Finalizar,action,false,,requires:status!=completed,Mostrar apenas na página Viagens
+trips,actions,cancel,Cancelar,action,false,,requires:status!=cancelled,Mostrar apenas na página Viagens
+auth,form,email,E-mail,email,true,,,
+auth,form,password,Senha,password,true,,min:6,
+drivers,form,name,Nome,text,true,,min:2;max:80,

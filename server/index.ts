@@ -1,4 +1,5 @@
 // server/index.ts
+import 'dotenv/config';
 import express, { type Express } from "express";
 import cors, { type CorsOptions } from "cors";
 import { registerRoutes } from "./routes.js";

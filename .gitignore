@@ -6,3 +6,10 @@ vite.config.ts.*
 *.tar.gz
 .vercel
 .env
+client/dist
+shared/**/*.js
+shared/**/*.js.map
+
+.local/
+
+.vscode/
