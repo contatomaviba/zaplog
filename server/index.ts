@@ -1,18 +1,18 @@
 // server/index.ts
 import 'dotenv/config';
-import express, { type Express } from "express";
-import cors, { type CorsOptions } from "cors";
-import { registerRoutes } from "./routes.js";
+import express, { type Express } from 'express';
+import cors, { type CorsOptions } from 'cors';
+import { registerRoutes } from './routes.js';
 
 const app: Express = express();
 
 // domínios fixos conhecidos
 const allowedOrigins = new Set<string>([
-  "http://localhost:5173",
-  "https://zaplog-five.vercel.app", // se ainda usar esse
+  'http://localhost:5173',
+  'https://zaplog-five.vercel.app', // se ainda usar esse
 ]);
 
-// helper p/ liberar domínios do Vercel e um domínio custom via env
+// helper p/ liberar domínios do Vercel, Codespaces e um domínio custom via env
 function isAllowedOrigin(origin?: string): boolean {
   if (!origin) return true; // permite tools (Postman/cURL)
 
@@ -28,6 +28,11 @@ function isAllowedOrigin(origin?: string): boolean {
     return true;
   }
 
+  // Codespaces: portas encaminhadas (*.app.github.dev)
+  if (/^https:\/\/[a-z0-9-]+-\d+\.app\.github\.dev$/.test(origin)) {
+    return true;
+  }
+
   // opcional: um domínio do cliente via env (ex.: CLIENT_ORIGIN=https://app.seudominio.com)
   if (process.env.CLIENT_ORIGIN && origin === process.env.CLIENT_ORIGIN) {
     return true;
@@ -39,7 +44,7 @@ function isAllowedOrigin(origin?: string): boolean {
 const corsOptions: CorsOptions = {
   origin: (origin, cb) => {
     if (isAllowedOrigin(origin)) cb(null, true);
-    else cb(new Error("Not allowed by CORS"));
+    else cb(new Error('Not allowed by CORS'));
   },
   credentials: true,
 };
@@ -50,10 +55,11 @@ app.use(express.json());
 registerRoutes(app);
 
 // Em produção (Vercel) não fazemos listen.
-// Em dev, ligamos localmente:
-if (process.env.NODE_ENV !== "production") {
+// Em dev, ligamos localmente (0.0.0.0 para containers/Codespaces):
+if (process.env.NODE_ENV !== 'production') {
   const PORT = Number(process.env.PORT) || 5000;
-  app.listen(PORT, () => console.log(`🚀 Servidor local na porta ${PORT}`));
+  app.listen(PORT, '0.0.0.0', () => console.log(`Servidor local na porta ${PORT}`));
 }
 
 export default app;
+
